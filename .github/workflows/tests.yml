@@ -43,7 +43,7 @@ jobs:
               echo ''
             fi)
           matrix=$(
-            echo "{ \"requirements-level\": [\"pypi\"], \"include\": $INCLUDE, $DB $SEARCH \"python-version\": $PYTHON_VERSIONS }"
+            echo "{ \"include\": $INCLUDE, $DB $SEARCH \"python-version\": $PYTHON_VERSIONS }"
           )
           echo "-------------------"
           echo $matrix
@@ -70,17 +70,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "${{ matrix.python-version }}"
-
-      - name: Generate dependencies
-        run: |
-          pip install wheel setuptools requirements-builder
-          requirements-builder -e "tests" --level=${{ matrix.requirements-level }} setup.py > .${{ matrix.requirements-level }}-${{ matrix.python-version }}-requirements.txt
-          cat .${{ matrix.requirements-level }}-${{ matrix.python-version }}-requirements.txt
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('.${{ matrix.requirements-level }}-${{ matrix.python-version }}-requirements.txt') }}
+          cache: pip
+          cache-dependency-path: setup.cfg
 
       - name: Log pip before install
         run: |
@@ -88,7 +79,6 @@ jobs:
           pip list
       - name: Install dependencies
         run: |
-          pip install -r .${{ matrix.requirements-level }}-${{ matrix.python-version }}-requirements.txt
           pip install ".[tests]"
           pip freeze
           docker --version
