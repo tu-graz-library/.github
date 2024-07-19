@@ -73,20 +73,16 @@ jobs:
           cache: pip
           cache-dependency-path: setup.cfg
 
-      - name: Log pip before install
-        run: |
-          pip --version
-          pip list
       - name: Install dependencies
         run: |
           pip install ".[tests]"
-          pip freeze
-          docker --version
-          docker-compose --version
-      - name: Log pip after install
+
+      - name: Show configuration
         run: |
           pip --version
           pip list
+          docker --version
+
       - name: Run tests
         run: |
           ./run-tests.sh
