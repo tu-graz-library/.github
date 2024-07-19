@@ -16,7 +16,7 @@ jobs:
         id: requirements
         run: |
           INCLUDE=$(echo '[{
-            "db-service": "postgresql14",
+            "db-service": "postgresql16",
             "DB_EXTRAS": "postgresql"
           }, {
             "search-service": "opensearch2",
@@ -31,7 +31,7 @@ jobs:
           DB=$(
             if grep -q "invenio-db" setup.cfg
             then
-              echo '"db-services": ["postgresql14"], '
+              echo '"db-services": ["postgresql16"], '
             else
               echo ''
             fi)
