@@ -31,6 +31,7 @@ jobs:
         run: |
           if [[ -f setup.cfg ]] && grep -q "compile_catalog" setup.cfg
           then
+            uv pip install --python=3.12 setuptools
             python setup.py compile_catalog
           elif [[ -n "$TRANSLATION_DIRECTORY" ]]
           then
