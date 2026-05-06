@@ -17,11 +17,11 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: false
-          python-version: 3.12
+          python-version: 3.14
 
       - name: Install dependencies
         run: |
-          uv pip install --python=3.12 babel build
+          uv pip install --python=3.14 babel build
 
       - name: Compile translations
         env:
@@ -31,7 +31,7 @@ jobs:
         run: |
           if [[ -f setup.cfg ]] && grep -q "compile_catalog" setup.cfg
           then
-            uv pip install --python=3.12 setuptools
+            uv pip install --python=3.14 setuptools
             python setup.py compile_catalog
           elif [[ -n "$TRANSLATION_DIRECTORY" ]]
           then
