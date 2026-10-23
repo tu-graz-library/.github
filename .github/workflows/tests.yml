@@ -28,6 +28,7 @@ jobs:
     env:
       DB: ${{ matrix.db-service }}
       SEARCH: ${{ matrix.search-service }}
+      UV_SYSTEM_PYTHON: 1  # Force uv to install dependencies in the system-managed Python
 
     steps:
       - name: Checkout
