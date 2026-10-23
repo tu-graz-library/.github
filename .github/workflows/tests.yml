@@ -1,62 +1,29 @@
+name: Python CI
+
 on:
   workflow_call:
-
+    inputs:
+      python-version:
+        description: "Python versions"
+        type: string
+        default: '["3.14", "3.15"]'
+      db-service:
+        description: "DB service"
+        type: string
+        default: '["postgresql18"]'
+      search-service:
+        description: "Search service"
+        type: string
+        default: '["opensearch3"]'
 jobs:
-  create-strategy:
-    runs-on: ubuntu-latest
-
-    outputs:
-      matrix: ${{ steps.requirements.outputs.matrix }}
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: requirements
-        id: requirements
-        run: |
-          INCLUDE=$(echo '[{
-            "db-service": "postgresql14",
-            "DB_EXTRAS": "postgresql"
-          }, {
-            "search-service": "opensearch2",
-            "SEARCH_EXTRAS": "opensearch2"
-          }]' | jq -c .)
-          PYTHON_VERSIONS=$(
-            grep "Programming Language :: Python ::" setup.cfg |
-              sed -E "s/^.*::\s(.*)$/\1/" |
-              tr "\n" " " |
-              xargs |
-              sed -E -e 's/\s/","/g' -e 's/^/["/' -e 's/$/"]/')
-          DB=$(
-            if grep -q "invenio-db" setup.cfg
-            then
-              echo '"db-services": ["postgresql14"], '
-            else
-              echo ''
-            fi)
-          SEARCH=$(
-            if grep -q "invenio-search" setup.cfg
-            then
-              echo '"search-services": ["opensearch2"], '
-            else
-              echo ''
-            fi)
-          matrix=$(
-            echo "{ \"include\": $INCLUDE, $DB $SEARCH \"python-version\": $PYTHON_VERSIONS }"
-          )
-          echo "-------------------"
-          echo $matrix
-          echo "-------------------"
-          echo "matrix=$matrix" >> $GITHUB_OUTPUT
-
   tests:
-    needs: create-strategy
     runs-on: ubuntu-latest
-    name: Test (Python ${{matrix.python-version}})
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.create-strategy.outputs.matrix) }}
+      matrix:
+        python-version: ${{ fromJson(inputs.python-version) }}
+        db-service: ${{ fromJson(inputs.db-service) }}
+        search-service: ${{ fromJson(inputs.search-service) }}
 
     env:
       DB: ${{ matrix.db-service }}
@@ -64,25 +31,19 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
-      - name: Set up Python "${{ matrix.python-version }}"
-        uses: actions/setup-python@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.3.2
         with:
-          python-version: "${{ matrix.python-version }}"
-          cache: pip
-          cache-dependency-path: setup.cfg
+          enable-cache: true
+          python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
         run: |
-          pip install ".[tests]"
-
-      - name: Show configuration
-        run: |
-          pip --version
-          pip list
-          docker --version
-          docker ps
+          uv pip install -q ".[tests]"
+          uv pip list
+          docker version
 
       - name: Run tests
         run: |
