@@ -44,6 +44,10 @@ jobs:
         with:
           enable-cache: true
 
+      - name: Pre-install
+        uses: ./.github/actions/pre-install
+        if: ${{ hashFiles(".github/actions/pre-install/action.yml") != "" }}
+
       - name: Install dependencies
         run: |
           uv pip install -q ".[tests]"
