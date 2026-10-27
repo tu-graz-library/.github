@@ -10,11 +10,11 @@ on:
       db-service:
         description: "DB service"
         type: string
-        default: '["postgresql18"]'
+        default: '["postgresql16"]'
       search-service:
         description: "Search service"
         type: string
-        default: '["opensearch3"]'
+        default: '["opensearch2"]'
 jobs:
   tests:
     runs-on: ubuntu-latest
