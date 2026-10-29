@@ -34,6 +34,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+        # temporary, because isar has to be build on python3.15 and needs nasm
+      - name: Install build dependencies
+        run: sudo apt-get install --yes nasm
+        shell: bash
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v7
         with:
