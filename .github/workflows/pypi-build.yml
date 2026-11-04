@@ -13,6 +13,7 @@ jobs:
         with:
           enable-cache: false
           python-version: 3.14
+          activate-environment: true
 
       - name: Install dependencies
         run: |
